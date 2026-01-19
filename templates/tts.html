@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block title %}Text to Speech - Smart English{% endblock %}
+
+{% block nav_tts %}bg-white/10 text-white{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-8">
+    <!-- Header -->
+    <div class="text-center space-y-4">
+        <h1 class="text-4xl font-extrabold gradient-text float">Text to Speech</h1>
+        <p class="text-xl text-gray-300">Enter text below and listen to the pronunciation</p>
+    </div>
+
+    <!-- Main Card -->
+    <div class="glass-dark rounded-3xl p-8 shadow-2xl relative overflow-hidden">
+        <!-- Glow effect -->
+        <div class="absolute top-0 right-0 w-64 h-64 bg-primary-500/20 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none"></div>
+        <div class="absolute bottom-0 left-0 w-64 h-64 bg-accent-500/20 rounded-full blur-3xl -ml-32 -mb-32 pointer-events-none"></div>
+
+        <div class="relative z-10 space-y-6">
+            <!-- Text Area -->
+            <div class="space-y-2">
+                <label for="tts-input" class="text-sm font-medium text-gray-300 ml-1">Input Text</label>
+                <div class="relative group">
+                    <div class="absolute -inset-0.5 bg-gradient-to-r from-primary-500 to-accent-500 rounded-2xl opacity-50 group-hover:opacity-100 transition duration-500 blur"></div>
+                    <textarea 
+                        id="tts-input" 
+                        rows="8" 
+                        class="relative w-full bg-slate-900 border border-white/10 rounded-xl p-4 text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500/50 resize-dashed"
+                        placeholder="Type or paste your English text here..."
+                    ></textarea>
+                </div>
+            </div>
+
+            <!-- Controls -->
+            <div class="flex justify-end pt-2">
+                <button id="play-btn" class="btn-glow bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-400 hover:to-primary-500 text-white py-3 px-8 rounded-xl font-medium transition-all flex items-center justify-center space-x-2 transform hover:scale-105 active:scale-95 shadow-lg shadow-primary-500/30">
+                    <svg id="play-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path>
+                    </svg>
+                    <svg id="loading-icon" class="w-6 h-6 hidden animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span id="play-text" class="text-lg">Play Audio</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const ttsInput = document.getElementById('tts-input');
+        const playBtn = document.getElementById('play-btn');
+        const playIcon = document.getElementById('play-icon');
+        const loadingIcon = document.getElementById('loading-icon');
+        const playText = document.getElementById('play-text');
+        const audioPlayer = document.getElementById('audio-player'); // Existing audio player from base.html
+
+        let isPlaying = false;
+
+        playBtn.addEventListener('click', async () => {
+            const text = ttsInput.value.trim();
+            if (!text) {
+                showToast('Please enter some text first', 'error');
+                ttsInput.focus();
+                return;
+            }
+
+            if (isPlaying) return;
+
+            // UI Loading State
+            isPlaying = true;
+            playBtn.disabled = true;
+            playIcon.classList.add('hidden');
+            loadingIcon.classList.remove('hidden');
+            playText.textContent = 'Generating...';
+
+            try {
+                const response = await fetch('/api/tts', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ text }),
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to generate speech');
+                }
+
+                const blob = await response.blob();
+                const audioUrl = URL.createObjectURL(blob);
+                
+                audioPlayer.src = audioUrl;
+                audioPlayer.play();
+                
+                playText.textContent = 'Playing...';
+                loadingIcon.classList.add('hidden');
+                
+                // Show wave animation icon if you had one, but for now we revert to speak icon
+                 playIcon.classList.remove('hidden');
+
+                audioPlayer.onended = () => {
+                    playText.textContent = 'Play Audio';
+                    isPlaying = false;
+                    playBtn.disabled = false;
+                };
+                
+                audioPlayer.onerror = () => {
+                     showToast('Error playing audio', 'error');
+                     resetButton();
+                };
+
+            } catch (error) {
+                console.error('TTS Error:', error);
+                showToast('Failed to generate audio. Please try again.', 'error');
+                resetButton();
+            }
+        });
+
+        function resetButton() {
+            isPlaying = false;
+            playBtn.disabled = false;
+            playIcon.classList.remove('hidden');
+            loadingIcon.classList.add('hidden');
+            playText.textContent = 'Play Audio';
+        }
+    });
+</script>
+{% endblock %}
