@@ -18,10 +18,10 @@ def create_app(config_class=Config):
 
     return app
 
-if __name__ == '__main__':
-    app = create_app()
-    
-    # Initialize database
+app = create_app()
+
+with app.app_context():
     init_db(app)
-    
+
+if __name__ == '__main__':
     app.run(debug=True, port=5000)
