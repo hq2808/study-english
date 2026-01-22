@@ -42,10 +42,20 @@
 ---
 
 ## 🚀 Hướng dẫn cài đặt
+docker exec -it postgres_service psql -U postgres
+
+CREATE DATABASE study_english;
+
+\l
+
+\q
 
 python -m venv .venv
+
 .venv\Scripts\activate
+
 pip install -r requirements.txt
+
 python app.py
 Truy cập: **http://127.0.0.1:5000**
 

@@ -3,3 +3,4 @@ Flask-SQLAlchemy
 gTTS
 deep-translator
 gunicorn
+psycopg2-binary

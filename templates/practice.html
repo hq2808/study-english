@@ -1,0 +1,551 @@
+{% extends "base.html" %}
+
+{% block title %}Practice - Smart English Learning{% endblock %}
+
+{% block nav_practice %}bg-white/10 text-white{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <!-- Header -->
+    <div class="text-center mb-8">
+        <h1 class="text-4xl font-bold gradient-text mb-4">Practice Mode</h1>
+        <p class="text-gray-400">Review vocabulary by typing or speaking</p>
+    </div>
+
+    <!-- Mode Selector -->
+    <div class="glass-dark rounded-2xl p-6 mb-6 glow-sm">
+        <div class="flex flex-wrap gap-4 justify-center">
+            <!-- Practice Type -->
+            <div class="flex bg-white/5 rounded-xl p-1">
+                <button id="mode-typing"
+                    class="mode-btn px-6 py-3 rounded-lg font-medium transition-all bg-primary-500 text-white"
+                    data-mode="typing">
+                    <span class="flex items-center space-x-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z">
+                            </path>
+                        </svg>
+                        <span>Typing</span>
+                    </span>
+                </button>
+                <button id="mode-speech"
+                    class="mode-btn px-6 py-3 rounded-lg font-medium transition-all text-gray-400 hover:text-white"
+                    data-mode="speech">
+                    <span class="flex items-center space-x-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z">
+                            </path>
+                        </svg>
+                        <span>Speech</span>
+                    </span>
+                </button>
+            </div>
+
+            <!-- Content Type -->
+            <div class="flex bg-white/5 rounded-xl p-1">
+                <button id="content-words"
+                    class="content-btn px-6 py-3 rounded-lg font-medium transition-all bg-accent-500 text-white"
+                    data-content="words">
+                    <span class="flex items-center space-x-2">
+                        <span>📖</span>
+                        <span>Words</span>
+                    </span>
+                </button>
+                <button id="content-phrases"
+                    class="content-btn px-6 py-3 rounded-lg font-medium transition-all text-gray-400 hover:text-white"
+                    data-content="phrases">
+                    <span class="flex items-center space-x-2">
+                        <span>💬</span>
+                        <span>Phrases</span>
+                    </span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="grid grid-cols-4 gap-4 mb-6">
+        <div class="glass-dark rounded-xl p-4 text-center">
+            <div class="text-2xl font-bold text-white" id="stat-total">0</div>
+            <div class="text-gray-500 text-sm">Total</div>
+        </div>
+        <div class="glass-dark rounded-xl p-4 text-center">
+            <div class="text-2xl font-bold text-green-400" id="stat-correct">0</div>
+            <div class="text-gray-500 text-sm">Correct</div>
+        </div>
+        <div class="glass-dark rounded-xl p-4 text-center">
+            <div class="text-2xl font-bold text-red-400" id="stat-wrong">0</div>
+            <div class="text-gray-500 text-sm">Wrong</div>
+        </div>
+        <div class="glass-dark rounded-xl p-4 text-center">
+            <div class="text-2xl font-bold text-primary-400" id="stat-remaining">0</div>
+            <div class="text-gray-500 text-sm">Remaining</div>
+        </div>
+    </div>
+
+    <!-- Empty State -->
+    <div id="empty-state" class="hidden glass-dark rounded-2xl p-12 text-center glow">
+        <div
+            class="w-24 h-24 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-gray-600 to-gray-700 flex items-center justify-center">
+            <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253">
+                </path>
+            </svg>
+        </div>
+        <h2 class="text-2xl font-bold text-white mb-4">No vocabulary to practice!</h2>
+        <p class="text-gray-400 mb-6">Import some vocabulary first to start practicing.</p>
+        <a href="/import"
+            class="inline-flex items-center space-x-2 btn-glow bg-gradient-to-r from-primary-500 to-accent-500 text-white py-3 px-6 rounded-xl font-medium">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+            <span>Import Vocabulary</span>
+        </a>
+    </div>
+
+    <!-- Practice Card -->
+    <div id="practice-section" class="hidden">
+        <!-- Card -->
+        <div class="glass-dark rounded-2xl p-8 mb-6 glow-sm">
+            <!-- Progress -->
+            <div class="flex items-center justify-between mb-6">
+                <span class="text-gray-400">Card <span id="current-index">1</span> of <span
+                        id="card-count">0</span></span>
+                <button id="skip-btn"
+                    class="text-gray-400 hover:text-white transition-colors flex items-center space-x-1">
+                    <span>Skip</span>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Question -->
+            <div class="text-center mb-8">
+                <p id="question-label" class="text-gray-400 mb-2">Translate to English:</p>
+                <p id="question-text" class="text-3xl font-bold text-white mb-2"></p>
+                <p id="question-hint" class="text-gray-500 text-sm"></p>
+            </div>
+
+            <!-- Typing Input -->
+            <div id="typing-area" class="mb-6">
+                <input type="text" id="answer-input"
+                    class="w-full bg-white/5 border-2 border-white/10 rounded-xl p-4 text-xl text-white text-center placeholder-gray-500 focus:outline-none focus:border-primary-500 transition-colors"
+                    placeholder="Type your answer here..." autocomplete="off">
+                <button id="check-btn"
+                    class="w-full mt-4 btn-glow bg-gradient-to-r from-primary-500 to-accent-500 hover:from-primary-400 hover:to-accent-400 text-white py-4 rounded-xl font-medium transition-all text-lg">
+                    Check Answer
+                </button>
+            </div>
+
+            <!-- Speech Area -->
+            <div id="speech-area" class="hidden mb-6 text-center">
+                <button id="record-btn"
+                    class="w-24 h-24 rounded-full bg-gradient-to-r from-primary-500 to-accent-500 hover:from-primary-400 hover:to-accent-400 text-white transition-all flex items-center justify-center mx-auto mb-4 glow">
+                    <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z">
+                        </path>
+                    </svg>
+                </button>
+                <p id="speech-status" class="text-gray-400">Click to start speaking</p>
+                <p id="speech-result" class="text-xl text-white mt-4 hidden"></p>
+            </div>
+
+            <!-- Result -->
+            <div id="result-area" class="hidden text-center">
+                <div id="result-icon" class="w-20 h-20 rounded-full mx-auto mb-4 flex items-center justify-center">
+                </div>
+                <p id="result-message" class="text-xl font-bold mb-2"></p>
+                <p id="correct-answer" class="text-gray-400 mb-6"></p>
+                <button id="next-btn"
+                    class="btn-glow bg-gradient-to-r from-primary-500 to-accent-500 hover:from-primary-400 hover:to-accent-400 text-white py-3 px-8 rounded-xl font-medium transition-all">
+                    Next Word
+                </button>
+            </div>
+        </div>
+
+        <!-- Listen Button -->
+        <div class="text-center">
+            <button id="listen-btn"
+                class="inline-flex items-center space-x-2 bg-white/10 hover:bg-white/20 text-white py-3 px-6 rounded-xl transition-all">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z">
+                    </path>
+                </svg>
+                <span>Listen to pronunciation</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Completion -->
+    <div id="complete-section" class="hidden glass-dark rounded-2xl p-12 text-center glow">
+        <div
+            class="w-24 h-24 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center float">
+            <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+        </div>
+        <h2 class="text-3xl font-bold gradient-text mb-4">Practice Complete!</h2>
+        <p class="text-gray-400 mb-6">Great job! You've reviewed all vocabulary.</p>
+        <div class="flex gap-4 justify-center">
+            <button id="restart-btn"
+                class="btn-glow bg-gradient-to-r from-primary-500 to-accent-500 text-white py-3 px-6 rounded-xl font-medium">
+                Practice Again
+            </button>
+            <a href="/flashcards"
+                class="bg-white/10 hover:bg-white/20 text-white py-3 px-6 rounded-xl font-medium transition-all">
+                View Flashcards
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Audio Player -->
+<audio id="audio-player" class="hidden"></audio>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // State
+    let vocabulary = [];
+    let currentIndex = 0;
+    let stats = { correct: 0, wrong: 0 };
+    let practiceMode = 'typing'; // 'typing' or 'speech'
+    let contentMode = 'words'; // 'words' or 'phrases'
+    let recognition = null;
+
+    // DOM Elements
+    const emptyState = document.getElementById('empty-state');
+    const practiceSection = document.getElementById('practice-section');
+    const completeSection = document.getElementById('complete-section');
+    const audioPlayer = document.getElementById('audio-player');
+
+    // Initialize Web Speech API
+    const initSpeechRecognition = () => {
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            recognition.lang = 'en-US';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 3;
+
+            recognition.onresult = (event) => {
+                const results = Array.from(event.results[0]).map(r => r.transcript.toLowerCase());
+                document.getElementById('speech-result').textContent = results[0];
+                document.getElementById('speech-result').classList.remove('hidden');
+                document.getElementById('speech-status').textContent = 'You said:';
+
+                checkSpeechAnswer(results);
+            };
+
+            recognition.onerror = (event) => {
+                document.getElementById('speech-status').textContent = 'Error: ' + event.error;
+                document.getElementById('record-btn').classList.remove('recording');
+            };
+
+            recognition.onend = () => {
+                document.getElementById('record-btn').classList.remove('recording');
+            };
+        }
+    };
+
+    // Fetch vocabulary
+    const fetchVocabulary = async () => {
+        try {
+            const response = await fetch(`/api/vocabulary/practice?mode=${contentMode}`);
+            vocabulary = await response.json();
+
+            updateStats();
+
+            if (vocabulary.length === 0) {
+                emptyState.classList.remove('hidden');
+                practiceSection.classList.add('hidden');
+            } else {
+                emptyState.classList.add('hidden');
+                practiceSection.classList.remove('hidden');
+                showCard(0);
+            }
+        } catch (error) {
+            console.error('Failed to fetch vocabulary:', error);
+            showToast('Failed to load vocabulary', 'error');
+        }
+    };
+
+    // Update stats
+    const updateStats = () => {
+        document.getElementById('stat-total').textContent = vocabulary.length;
+        document.getElementById('stat-correct').textContent = stats.correct;
+        document.getElementById('stat-wrong').textContent = stats.wrong;
+        document.getElementById('stat-remaining').textContent = vocabulary.length - currentIndex;
+        document.getElementById('card-count').textContent = vocabulary.length;
+    };
+
+    // Show card
+    const showCard = (index) => {
+        if (index >= vocabulary.length) {
+            showComplete();
+            return;
+        }
+
+        currentIndex = index;
+        const card = vocabulary[currentIndex];
+
+        // Reset UI
+        document.getElementById('result-area').classList.add('hidden');
+        document.getElementById('answer-input').value = '';
+        document.getElementById('answer-input').disabled = false;
+        document.getElementById('answer-input').classList.remove('border-green-500', 'border-red-500');
+        document.getElementById('check-btn').classList.remove('hidden');
+        document.getElementById('speech-result').classList.add('hidden');
+        document.getElementById('speech-status').textContent = 'Click to start speaking';
+
+        // Set question based on mode
+        if (practiceMode === 'typing') {
+            document.getElementById('typing-area').classList.remove('hidden');
+            document.getElementById('speech-area').classList.add('hidden');
+
+            if (contentMode === 'phrases' && card.example_vi) {
+                document.getElementById('question-label').textContent = 'Translate to English:';
+                document.getElementById('question-text').textContent = card.example_vi;
+                document.getElementById('question-hint').textContent = '';
+            } else {
+                document.getElementById('question-label').textContent = 'Translate to English:';
+                document.getElementById('question-text').textContent = card.translation;
+                document.getElementById('question-hint').textContent = card.phonetic ? `Hint: /${card.phonetic}/` : '';
+            }
+        } else {
+            document.getElementById('typing-area').classList.add('hidden');
+            document.getElementById('speech-area').classList.remove('hidden');
+
+            if (contentMode === 'phrases' && card.example_en) {
+                document.getElementById('question-label').textContent = 'Say this sentence:';
+                document.getElementById('question-text').textContent = card.example_en;
+            } else {
+                document.getElementById('question-label').textContent = 'Say this word:';
+                document.getElementById('question-text').textContent = card.word;
+            }
+            document.getElementById('question-hint').textContent = card.phonetic ? `/${card.phonetic}/` : '';
+        }
+
+        document.getElementById('current-index').textContent = index + 1;
+        updateStats();
+    };
+
+    // Check typing answer
+    const checkTypingAnswer = () => {
+        const card = vocabulary[currentIndex];
+        const userAnswer = document.getElementById('answer-input').value.trim().toLowerCase();
+
+        let correctAnswer;
+        if (contentMode === 'phrases' && card.example_en) {
+            correctAnswer = card.example_en.toLowerCase();
+        } else {
+            correctAnswer = card.word.toLowerCase();
+        }
+
+        const isCorrect = userAnswer === correctAnswer ||
+            correctAnswer.includes(userAnswer) && userAnswer.length > correctAnswer.length * 0.7;
+
+        showResult(isCorrect, correctAnswer);
+        updatePracticeResult(card.id, 'typing', isCorrect);
+    };
+
+    // Check speech answer
+    const checkSpeechAnswer = (results) => {
+        const card = vocabulary[currentIndex];
+
+        let correctAnswer;
+        if (contentMode === 'phrases' && card.example_en) {
+            correctAnswer = card.example_en.toLowerCase();
+        } else {
+            correctAnswer = card.word.toLowerCase();
+        }
+
+        // Check if any result matches
+        const isCorrect = results.some(r => {
+            const clean = r.replace(/[^\w\s]/g, '').trim();
+            return clean === correctAnswer ||
+                correctAnswer.includes(clean) && clean.length > correctAnswer.length * 0.5;
+        });
+
+        showResult(isCorrect, correctAnswer);
+        updatePracticeResult(card.id, 'speech', isCorrect);
+    };
+
+    // Show result
+    const showResult = (isCorrect, correctAnswer) => {
+        if (isCorrect) {
+            stats.correct++;
+            document.getElementById('result-icon').innerHTML = `
+                <div class="w-20 h-20 rounded-full bg-gradient-to-r from-green-400 to-emerald-500 flex items-center justify-center">
+                    <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                </div>`;
+            document.getElementById('result-message').textContent = 'Correct!';
+            document.getElementById('result-message').className = 'text-xl font-bold text-green-400 mb-2';
+            document.getElementById('answer-input').classList.add('border-green-500');
+        } else {
+            stats.wrong++;
+            document.getElementById('result-icon').innerHTML = `
+                <div class="w-20 h-20 rounded-full bg-gradient-to-r from-red-400 to-rose-500 flex items-center justify-center">
+                    <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </div>`;
+            document.getElementById('result-message').textContent = 'Not quite!';
+            document.getElementById('result-message').className = 'text-xl font-bold text-red-400 mb-2';
+            document.getElementById('answer-input').classList.add('border-red-500');
+        }
+
+        document.getElementById('correct-answer').textContent = `Correct answer: ${correctAnswer}`;
+        document.getElementById('check-btn').classList.add('hidden');
+        document.getElementById('answer-input').disabled = true;
+        document.getElementById('result-area').classList.remove('hidden');
+        updateStats();
+    };
+
+    // Update practice result via API
+    const updatePracticeResult = async (vocabId, type, correct) => {
+        try {
+            await fetch(`/api/vocabulary/${vocabId}/${type}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ correct })
+            });
+        } catch (error) {
+            console.error('Failed to update practice result:', error);
+        }
+    };
+
+    // Show completion
+    const showComplete = () => {
+        practiceSection.classList.add('hidden');
+        completeSection.classList.remove('hidden');
+    };
+
+    // Play audio
+    const playAudio = async (text) => {
+        try {
+            const response = await fetch('/api/tts', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text })
+            });
+            const blob = await response.blob();
+            audioPlayer.src = URL.createObjectURL(blob);
+            audioPlayer.play();
+        } catch (error) {
+            console.error('TTS failed:', error);
+        }
+    };
+
+    // Mode buttons
+    document.querySelectorAll('.mode-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.mode-btn').forEach(b => {
+                b.classList.remove('bg-primary-500', 'text-white');
+                b.classList.add('text-gray-400');
+            });
+            btn.classList.add('bg-primary-500', 'text-white');
+            btn.classList.remove('text-gray-400');
+
+            practiceMode = btn.dataset.mode;
+            showCard(currentIndex);
+        });
+    });
+
+    // Content buttons
+    document.querySelectorAll('.content-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.content-btn').forEach(b => {
+                b.classList.remove('bg-accent-500', 'text-white');
+                b.classList.add('text-gray-400');
+            });
+            btn.classList.add('bg-accent-500', 'text-white');
+            btn.classList.remove('text-gray-400');
+
+            contentMode = btn.dataset.content;
+            currentIndex = 0;
+            stats = { correct: 0, wrong: 0 };
+            fetchVocabulary();
+        });
+    });
+
+    // Check button
+    document.getElementById('check-btn').addEventListener('click', checkTypingAnswer);
+
+    // Enter key to check
+    document.getElementById('answer-input').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') checkTypingAnswer();
+    });
+
+    // Next button
+    document.getElementById('next-btn').addEventListener('click', () => {
+        showCard(currentIndex + 1);
+    });
+
+    // Skip button
+    document.getElementById('skip-btn').addEventListener('click', () => {
+        showCard(currentIndex + 1);
+    });
+
+    // Record button
+    document.getElementById('record-btn').addEventListener('click', () => {
+        if (!recognition) {
+            showToast('Speech recognition not supported in this browser', 'error');
+            return;
+        }
+
+        document.getElementById('record-btn').classList.add('recording');
+        document.getElementById('speech-status').textContent = 'Listening...';
+        recognition.start();
+    });
+
+    // Listen button
+    document.getElementById('listen-btn').addEventListener('click', () => {
+        const card = vocabulary[currentIndex];
+        if (contentMode === 'phrases' && card.example_en) {
+            playAudio(card.example_en);
+        } else {
+            playAudio(card.word);
+        }
+    });
+
+    // Restart button
+    document.getElementById('restart-btn').addEventListener('click', () => {
+        currentIndex = 0;
+        stats = { correct: 0, wrong: 0 };
+        completeSection.classList.add('hidden');
+        practiceSection.classList.remove('hidden');
+        fetchVocabulary();
+    });
+
+    // Initialize
+    initSpeechRecognition();
+    fetchVocabulary();
+</script>
+
+<style>
+    .recording {
+        animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+
+        0%,
+        100% {
+            transform: scale(1);
+        }
+
+        50% {
+            transform: scale(1.1);
+        }
+    }
+</style>
+{% endblock %}

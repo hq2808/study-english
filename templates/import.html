@@ -1,0 +1,268 @@
+{% extends "base.html" %}
+
+{% block title %}Import Text - Smart English Learning{% endblock %}
+
+{% block nav_import %}bg-white/10 text-white{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <!-- Header -->
+    <div class="text-center mb-8">
+        <h1 class="text-4xl font-bold gradient-text mb-4">Import Vocabulary</h1>
+        <p class="text-gray-400">Paste text containing vocabulary entries to extract and save to flashcards</p>
+    </div>
+
+    <!-- Input Section -->
+    <div class="glass-dark rounded-2xl p-6 mb-6 glow-sm">
+        <h2 class="text-lg font-bold text-white mb-4 flex items-center space-x-2">
+            <svg class="w-5 h-5 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                </path>
+            </svg>
+            <span>Paste Your Text</span>
+        </h2>
+
+        <textarea id="input-text" rows="10"
+            class="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
+            placeholder="Paste vocabulary text here...
+
+Example format:
+Self-invocation /self ɪnvəˈkeɪʃn/: Tự gọi chính mình.
+Bypass /baɪˈpæs/: Bỏ qua, đi vòng qua (Bypass the proxy).
+
+&quot;The transaction didn't rollback because of self-invocation.&quot; (Transaction không rollback do tự gọi hàm nội bộ)."></textarea>
+
+        <div class="flex justify-end mt-4">
+            <button id="parse-btn"
+                class="btn-glow bg-gradient-to-r from-primary-500 to-accent-500 hover:from-primary-400 hover:to-accent-400 text-white py-3 px-8 rounded-xl font-medium transition-all flex items-center space-x-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+                <span>Parse Text</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Loading -->
+    <div id="loading" class="hidden glass-dark rounded-2xl p-8 text-center">
+        <div class="spinner mx-auto mb-4"></div>
+        <p class="text-gray-400">Analyzing text...</p>
+    </div>
+
+    <!-- Results Section -->
+    <div id="results-section" class="hidden">
+        <div class="glass-dark rounded-2xl p-6 glow-sm">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-lg font-bold text-white flex items-center space-x-2">
+                    <svg class="w-5 h-5 text-accent-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2">
+                        </path>
+                    </svg>
+                    <span>Extracted Vocabulary</span>
+                    <span id="result-count" class="bg-primary-500 text-white text-sm px-2 py-0.5 rounded-full">0</span>
+                </h2>
+                <div class="flex items-center space-x-3">
+                    <label class="flex items-center space-x-2 text-gray-400 cursor-pointer">
+                        <input type="checkbox" id="select-all"
+                            class="w-4 h-4 rounded bg-white/10 border-white/20 text-primary-500 focus:ring-primary-500">
+                        <span>Select All</span>
+                    </label>
+                    <button id="save-selected-btn"
+                        class="btn-glow bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 text-white py-2 px-6 rounded-xl font-medium transition-all flex items-center space-x-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7">
+                            </path>
+                        </svg>
+                        <span>Save Selected</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Results Table -->
+            <div id="results-table" class="overflow-x-auto">
+                <!-- Table will be inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Empty State -->
+    <div id="empty-result" class="hidden glass-dark rounded-2xl p-8 text-center">
+        <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-yellow-500/20 flex items-center justify-center">
+            <svg class="w-8 h-8 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                </path>
+            </svg>
+        </div>
+        <h3 class="text-xl font-bold text-white mb-2">No vocabulary found</h3>
+        <p class="text-gray-400">Make sure your text follows the format: Word /phonetic/: Translation</p>
+    </div>
+
+    <!-- Format Guide -->
+    <div class="mt-8 glass-dark rounded-2xl p-6">
+        <h3 class="text-lg font-bold text-white mb-4 flex items-center space-x-2">
+            <svg class="w-5 h-5 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <span>Supported Formats</span>
+        </h3>
+        <div class="space-y-3 text-gray-300 text-sm">
+            <div class="bg-white/5 rounded-lg p-3">
+                <code class="text-primary-300">Word /phonetic/: Translation</code>
+                <p class="text-gray-500 mt-1">Example: Self-invocation /self ɪnvəˈkeɪʃn/: Tự gọi chính mình.</p>
+            </div>
+            <div class="bg-white/5 rounded-lg p-3">
+                <code class="text-primary-300">Word /phonetic/: Translation (context)</code>
+                <p class="text-gray-500 mt-1">Example: Bypass /baɪˈpæs/: Bỏ qua (Bypass the proxy).</p>
+            </div>
+            <div class="bg-white/5 rounded-lg p-3">
+                <code class="text-primary-300">"English sentence" (Vietnamese translation)</code>
+                <p class="text-gray-500 mt-1">Example: "The transaction didn't rollback." (Transaction không rollback.)
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let parsedItems = [];
+
+    // Parse button
+    document.getElementById('parse-btn').addEventListener('click', async () => {
+        const text = document.getElementById('input-text').value.trim();
+
+        if (!text) {
+            showToast('Please enter some text to parse', 'error');
+            return;
+        }
+
+        // Show loading
+        document.getElementById('loading').classList.remove('hidden');
+        document.getElementById('results-section').classList.add('hidden');
+        document.getElementById('empty-result').classList.add('hidden');
+
+        try {
+            const response = await fetch('/api/vocabulary/parse', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text })
+            });
+
+            const data = await response.json();
+            document.getElementById('loading').classList.add('hidden');
+
+            if (data.count === 0) {
+                document.getElementById('empty-result').classList.remove('hidden');
+                return;
+            }
+
+            parsedItems = data.items;
+            renderResults(parsedItems);
+            document.getElementById('results-section').classList.remove('hidden');
+
+        } catch (error) {
+            console.error('Parse failed:', error);
+            document.getElementById('loading').classList.add('hidden');
+            showToast('Failed to parse text', 'error');
+        }
+    });
+
+    // Render results table
+    const renderResults = (items) => {
+        document.getElementById('result-count').textContent = items.length;
+
+        const tableHtml = `
+            <table class="w-full">
+                <thead class="bg-white/5">
+                    <tr>
+                        <th class="w-10 py-3 px-4"></th>
+                        <th class="text-left py-3 px-4 text-gray-400 font-medium">Word/Phrase</th>
+                        <th class="text-left py-3 px-4 text-gray-400 font-medium">Phonetic</th>
+                        <th class="text-left py-3 px-4 text-gray-400 font-medium">Translation</th>
+                        <th class="text-left py-3 px-4 text-gray-400 font-medium">Example</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-white/5">
+                    ${items.map((item, index) => `
+                        <tr class="hover:bg-white/5 transition-colors">
+                            <td class="py-3 px-4">
+                                <input type="checkbox" data-index="${index}" class="item-checkbox w-4 h-4 rounded bg-white/10 border-white/20 text-primary-500 focus:ring-primary-500" checked>
+                            </td>
+                            <td class="py-3 px-4 font-medium text-white">${escapeHtml(item.word)}</td>
+                            <td class="py-3 px-4 text-gray-400">${item.phonetic ? '/' + escapeHtml(item.phonetic) + '/' : '-'}</td>
+                            <td class="py-3 px-4 text-primary-300">${escapeHtml(item.translation)}</td>
+                            <td class="py-3 px-4 text-gray-500 text-sm">${item.example_en ? escapeHtml(item.example_en) : '-'}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        `;
+
+        document.getElementById('results-table').innerHTML = tableHtml;
+    };
+
+    // Escape HTML
+    const escapeHtml = (text) => {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    };
+
+    // Select all checkbox
+    document.getElementById('select-all').addEventListener('change', (e) => {
+        document.querySelectorAll('.item-checkbox').forEach(cb => {
+            cb.checked = e.target.checked;
+        });
+    });
+
+    // Save selected
+    document.getElementById('save-selected-btn').addEventListener('click', async () => {
+        const selectedIndexes = Array.from(document.querySelectorAll('.item-checkbox:checked'))
+            .map(cb => parseInt(cb.dataset.index));
+
+        if (selectedIndexes.length === 0) {
+            showToast('Please select at least one item to save', 'error');
+            return;
+        }
+
+        const itemsToSave = selectedIndexes.map(i => parsedItems[i]);
+
+        try {
+            const response = await fetch('/api/vocabulary/bulk', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ items: itemsToSave })
+            });
+
+            const data = await response.json();
+
+            if (data.saved_count > 0) {
+                showToast(`Saved ${data.saved_count} words to flashcards!`, 'success');
+                updateVocabCount();
+            }
+
+            if (data.skipped_count > 0) {
+                showToast(`${data.skipped_count} words already existed`, 'info');
+            }
+
+            // Clear input and results
+            if (data.saved_count > 0) {
+                document.getElementById('input-text').value = '';
+                document.getElementById('results-section').classList.add('hidden');
+                parsedItems = [];
+            }
+
+        } catch (error) {
+            console.error('Save failed:', error);
+            showToast('Failed to save vocabulary', 'error');
+        }
+    });
+</script>
+{% endblock %}

@@ -18,3 +18,15 @@ def flashcards():
 def tts():
     """Text to Speech page"""
     return render_template('tts.html')
+
+
+@main_bp.route('/import')
+def import_text():
+    """Import vocabulary from text page"""
+    return render_template('import.html')
+
+
+@main_bp.route('/practice')
+def practice():
+    """Practice vocabulary page"""
+    return render_template('practice.html')
